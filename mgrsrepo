@@ -1,0 +1,12 @@
+<repositories>
+    <!-- Maven Central -->
+    <repository>
+        <id>central</id>
+        <url>https://repo.maven.apache.org/maven2</url>
+    </repository>
+    <!-- OSGeo Repository for GeoTools -->
+    <repository>
+        <id>osgeo</id>
+        <url>https://repo.osgeo.org/repository/release/</url>
+    </repository>
+</repositories>
