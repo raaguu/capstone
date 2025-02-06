@@ -1,0 +1,44 @@
+package com.example.mgrs;
+
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
+import org.locationtech.proj4j.CRSFactory;
+import org.locationtech.proj4j.CoordinateTransform;
+import org.locationtech.proj4j.CoordinateTransformFactory;
+import org.locationtech.proj4j.ProjCoordinate;
+
+public class MGRSConverter {
+
+    public static class LatLong {
+        private double latitude;
+        private double longitude;
+
+        public LatLong(double latitude, double longitude) {
+            this.latitude = latitude;
+            this.longitude = longitude;
+        }
+
+        public double getLatitude() {
+            return latitude;
+        }
+
+        public double getLongitude() {
+            return longitude;
+        }
+    }
+
+    public static LatLong convertMGRSToLatLong(String mgrs) throws Exception {
+        // Example conversion logic using GeoTools
+        CoordinateReferenceSystem crs = CRS.decode("EPSG:4326"); // WGS84
+        MathTransform transform = CRS.findMathTransform(DefaultGeographicCRS.WGS84, crs);
+
+        // Placeholder for actual MGRS conversion logic
+        // Replace this with actual library calls
+        double latitude = 48.858844; // Example latitude
+        double longitude = 2.294351; // Example longitude
+
+        return new LatLong(latitude, longitude);
+    }
+}
