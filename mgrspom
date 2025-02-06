@@ -1,0 +1,10 @@
+<dependency>
+    <groupId>org.geotools</groupId>
+    <artifactId>gt-referencing</artifactId>
+    <version>25.0</version>
+</dependency>
+<dependency>
+    <groupId>org.geotools</groupId>
+    <artifactId>gt-epsg-hsql</artifactId>
+    <version>25.0</version>
+</dependency>
