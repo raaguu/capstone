@@ -6,16 +6,26 @@
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
     <http:listener doc:name="HTTP Listener" config-ref="HTTP_Listener_config" path="/geocode">
-        <http:request-param name="lat" value="#[attributes.queryParams.lat]" doc:name="Latitude Parameter"/>
-        <http:request-param name="lon" value="#[attributes.queryParams.lon]" doc:name="Longitude Parameter"/>
-    </http:listener>
+        </http:listener>
+    <ee:transform doc:name="Extract Query Params" >
+        <ee:message >
+            <ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+  lat: attributes.queryParams.lat,
+  lon: attributes.queryParams.lon
+}]]></ee:set-payload>
+        </ee:message>
+    </ee:transform>
     <http:request doc:name="Nominatim Request" config-ref="HTTP_Request_Nominatim" method="GET"
         url="https://nominatim.openstreetmap.org/reverse">
         <http:query-params>
             <http:query-param name="format" value="json"/>
-            <http:query-param name="lat" value="#[attributes.queryParams.lat]"/>
-            <http:query-param name="lon" value="#[attributes.queryParams.lon]"/>
-            <http:query-param name="addressdetails" value="1"/> </http:query-params>
+            <http:query-param name="lat" value="#[payload.lat]"/>
+            <http:query-param name="lon" value="#[payload.lon]"/>
+            <http:query-param name="addressdetails" value="1"/>
+        </http:query-params>
     </http:request>
     <ee:transform doc:name="Transform to JSON" >
         <ee:message >
@@ -33,20 +43,11 @@ var address = payload
 ---
 {
   country: address.country,
-  city: address.city default address.town default address.village default null, // Handle cases where city might be town or village
+  city: address.city default address.town default address.village default null,
   postalcode: address.postcode
 }]]></ee:set-payload>
         </ee:message>
     </ee:transform>
-    <ee:transform doc:name="Log output" >
-        <ee:message >
-            <ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-payload]]></ee:set-payload>
-        </ee:message>
-    </ee:transform>
-
     <logger level="INFO" doc:name="Logger" message="#[payload]"/>
     <http:response doc:name="HTTP Response">
         <http:body ><![CDATA[#[payload]]]></http:body>
