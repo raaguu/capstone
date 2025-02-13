@@ -1,0 +1,14 @@
+<flow name="mgrsConversionFlow">
+    <http:listener config-ref="HTTP_Listener_Config" path="/convert" method="GET"/>
+    <set-variable value="#[attributes.queryParams.lat]" variableName="lat"/>
+    <set-variable value="#[attributes.queryParams.lon]" variableName="lon"/>
+    <execute doc:name="Execute Python Script">
+        <execute:args>
+            <execute:arg value="python3"/>
+            <execute:arg value="/path/to/mgrs_converter.py"/>
+            <execute:arg value="#[vars.lat]"/>
+            <execute:arg value="#[vars.lon]"/>
+        </execute:args>
+    </execute>
+    <logger level="INFO" message="#[payload]"/>
+</flow>
