@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+    xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+    <http:listener-config name="HTTP_Listener_Config" doc:name="HTTP Listener Config" >
+        <http:listener-connection host="0.0.0.0" port="8081"/>
+    </http:listener-config>
+    <http:request-config name="Nominatim_HTTP_Request_Config" doc:name="HTTP Request Config" >
+        <http:request-connection host="nominatim.openstreetmap.org" port="443" protocol="HTTPS"/>
+    </http:request-config>
+    <flow name="nominatimGeocodingFlow" doc:name="Nominatim Geocoding Flow">
+        <!-- HTTP Listener to accept GET requests -->
+        <http:listener doc:name="Listener" config-ref="HTTP_Listener_Config" path="/geocode" method="GET"/>
+        
+        <!-- Set query parameters for Nominatim API -->
+        <set-variable value="#[attributes.queryParams.lat]" doc:name="Set Latitude" variableName="lat"/>
+        <set-variable value="#[attributes.queryParams.lon]" doc:name="Set Longitude" variableName="lon"/>
+        
+        <!-- Call Nominatim API -->
+        <http:request method="GET" doc:name="Nominatim API Request" config-ref="Nominatim_HTTP_Request_Config" path="/reverse">
+            <http:request-builder>
+                <http:query-param paramName="format" value="json"/>
+                <http:query-param paramName="lat" value="#[vars.lat]"/>
+                <http:query-param paramName="lon" value="#[vars.lon]"/>
+            </http:request-builder>
+        </http:request>
+        
+        <!-- Extract country, city, and postal code using DataWeave -->
+        <set-payload value="#[output application/json
+            ---
+            {
+                city: payload.address.city default payload.address.town default payload.address.village default null,
+                country: payload.address.country,
+                postalCode: payload.address.postcode
+            }]" doc:name="Extract Address Details"/>
+        
+        <!-- Return the response -->
+        <logger level="INFO" doc:name="Log Response" message="#[payload]"/>
+    </flow>
+</mule>
