@@ -1,0 +1,20 @@
+import mgrs
+
+def convert_to_mgrs(lat, lon):
+    m = mgrs.MGRS()
+    mgrs_code = m.toMGRS(lat, lon)
+    return mgrs_code
+
+def convert_to_latlon(mgrs_code):
+    m = mgrs.MGRS()
+    latlon = m.toLatLon(mgrs_code)
+    return latlon
+
+if __name__ == "__main__":
+    # Example usage
+    lat, lon = 34.0522, -118.2437  # Los Angeles coordinates
+    mgrs_code = convert_to_mgrs(lat, lon)
+    print(f"MGRS Code: {mgrs_code}")
+
+    latlon = convert_to_latlon(mgrs_code)
+    print(f"Lat/Lon: {latlon}")
