@@ -1,43 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
-    xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+    xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="
-        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
-    <http:listener-config name="HTTP_Listener_Config" doc:name="HTTP Listener Config" >
-        <http:listener-connection host="0.0.0.0" port="8081"/>
-    </http:listener-config>
-    <http:request-config name="Nominatim_HTTP_Request_Config" doc:name="HTTP Request Config" >
-        <http:request-connection host="nominatim.openstreetmap.org" port="443" protocol="HTTPS"/>
+    xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+    <http:listener doc:name="HTTP Listener" config-ref="HTTP_Listener_config" path="/geocode">
+        <http:request-param name="lat" value="#[attributes.queryParams.lat]" doc:name="Latitude Parameter"/>
+        <http:request-param name="lon" value="#[attributes.queryParams.lon]" doc:name="Longitude Parameter"/>
+    </http:listener>
+    <http:request doc:name="Nominatim Request" config-ref="HTTP_Request_Nominatim" method="GET"
+        url="https://nominatim.openstreetmap.org/reverse">
+        <http:query-params>
+            <http:query-param name="format" value="json"/>
+            <http:query-param name="lat" value="#[attributes.queryParams.lat]"/>
+            <http:query-param name="lon" value="#[attributes.queryParams.lon]"/>
+            <http:query-param name="addressdetails" value="1"/> </http:query-params>
+    </http:request>
+    <ee:transform doc:name="Transform to JSON" >
+        <ee:message >
+            <ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload[0].address]]></ee:set-payload>
+        </ee:message>
+    </ee:transform>
+    <ee:transform doc:name="Extract Data" >
+        <ee:message >
+            <ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var address = payload
+---
+{
+  country: address.country,
+  city: address.city default address.town default address.village default null, // Handle cases where city might be town or village
+  postalcode: address.postcode
+}]]></ee:set-payload>
+        </ee:message>
+    </ee:transform>
+    <ee:transform doc:name="Log output" >
+        <ee:message >
+            <ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+        </ee:message>
+    </ee:transform>
+
+    <logger level="INFO" doc:name="Logger" message="#[payload]"/>
+    <http:response doc:name="HTTP Response">
+        <http:body ><![CDATA[#[payload]]]></http:body>
+    </http:response>
+    <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener Config"
+        host="0.0.0.0" port="8081"/>
+    <http:request-config name="HTTP_Request_Nominatim" doc:name="HTTP Request Config"
+        host="nominatim.openstreetmap.org" port="80" basePath="/reverse">
+        <http:request-connection protocol="HTTP"/>
     </http:request-config>
-    <flow name="nominatimGeocodingFlow" doc:name="Nominatim Geocoding Flow">
-        <!-- HTTP Listener to accept GET requests -->
-        <http:listener doc:name="Listener" config-ref="HTTP_Listener_Config" path="/geocode" method="GET"/>
-        
-        <!-- Set query parameters for Nominatim API -->
-        <set-variable value="#[attributes.queryParams.lat]" doc:name="Set Latitude" variableName="lat"/>
-        <set-variable value="#[attributes.queryParams.lon]" doc:name="Set Longitude" variableName="lon"/>
-        
-        <!-- Call Nominatim API -->
-        <http:request method="GET" doc:name="Nominatim API Request" config-ref="Nominatim_HTTP_Request_Config" path="/reverse">
-            <http:request-builder>
-                <http:query-param paramName="format" value="json"/>
-                <http:query-param paramName="lat" value="#[vars.lat]"/>
-                <http:query-param paramName="lon" value="#[vars.lon]"/>
-            </http:request-builder>
-        </http:request>
-        
-        <!-- Extract country, city, and postal code using DataWeave -->
-        <set-payload value="#[output application/json
-            ---
-            {
-                city: payload.address.city default payload.address.town default payload.address.village default null,
-                country: payload.address.country,
-                postalCode: payload.address.postcode
-            }]" doc:name="Extract Address Details"/>
-        
-        <!-- Return the response -->
-        <logger level="INFO" doc:name="Log Response" message="#[payload]"/>
-    </flow>
 </mule>
