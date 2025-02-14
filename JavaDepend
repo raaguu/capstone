@@ -1,0 +1,11 @@
+<dependency>
+    <groupId>com.mulesoft.modules</groupId>
+    <artifactId>mule-java-module</artifactId>
+    <version>x.y.z</version>  <!-- Use the appropriate version -->
+</dependency>
+
+  <mule xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/java 
+        http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
