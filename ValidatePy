@@ -1,0 +1,65 @@
+import re
+import mgrs
+
+def validate_mgrs(mgrs_str):
+    """
+    Validate MGRS coordinate string format.
+    
+    Args:
+        mgrs_str (str): MGRS coordinate string
+    
+    Returns:
+        dict: Contains 'valid' boolean and 'message' string
+    """
+    # Remove any whitespace and convert to uppercase
+    mgrs_str = mgrs_str.replace(" ", "").upper()
+    
+    # Basic format check using regex
+    # This regex pattern matches common MGRS formats
+    pattern = r'^(\d{1,2}[A-Z])([A-Z]{2})(\d{2,10})$'
+    
+    if not re.match(pattern, mgrs_str):
+        return {
+            'valid': False,
+            'message': "Invalid MGRS format. Please check your input."
+        }
+    
+    # Check if the grid zone number is valid (1-60)
+    grid_zone = int(re.match(r'\d+', mgrs_str).group())
+    if grid_zone < 1 or grid_zone > 60:
+        return {
+            'valid': False,
+            'message': "Invalid grid zone number. Must be between 1 and 60."
+        }
+    
+    # Check if the numerical part has even length
+    numerical_part = re.search(r'\d+$', mgrs_str).group()
+    if len(numerical_part) % 2 != 0:
+        return {
+            'valid': False,
+            'message': "Invalid numerical part. Must have even number of digits."
+        }
+    
+    return {
+        'valid': True,
+        'message': "Valid MGRS coordinate"
+    }
+
+def convert_mgrs_to_latlon(mgrs_str):
+    """
+    Convert MGRS coordinate string to latitude and longitude.
+    
+    Args:
+        mgrs_str (str): MGRS coordinate string
+    
+    Returns:
+        tuple: (latitude, longitude)
+    """
+    m = mgrs.MGRS()
+    
+    try:
+        # Convert MGRS to lat/lon
+        lat, lon = m.toLatLon(mgrs_str)
+        return lat, lon
+    except Exception as e:
+        raise Exception(f"Error converting coordinates: {str(e)}")
