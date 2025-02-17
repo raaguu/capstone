@@ -1,5 +1,47 @@
-[ERROR] Failed to execute goal org.mule.tools.maven:mule-maven-plugin:4.3.0:process-classes (default-process-classes) on project mgrs: Execution default-process-classes of goal org.mule.tools.maven:mule-maven-plugin:4.3.0:process-classes failed: There was '1' error while parsing the given file 'mgrs.xml'.
-[ERROR] Full list:
-[ERROR] org.xml.sax.SAXParseException; lineNumber: 50; columnNumber: 67; cvc-complex-type.2.4.a: Invalid content was found starting with element '{"http://www.mulesoft.org/schema/mule/http":response}'. One of '{"http://www.mulesoft.org/schema/mule/core":abstract-message-processor, "http://www.mulesoft.org/schema/mule/core":abstract-mixed-content-message-processor, "http://www.mulesoft.org/schema/mule/core":abstract-error-handler}' is expected.
-[ERROR] -> [Help 1]
-[ERROR] 
+PS C:\Users\d-raul.alicea> pip install mgrs
+Defaulting to user installation because normal site-packages is not writeable
+Collecting mgrs
+  Using cached mgrs-1.5.0.tar.gz (31 kB)
+  Installing build dependencies ... done
+  Getting requirements to build wheel ... done
+  Preparing metadata (pyproject.toml) ... done
+Building wheels for collected packages: mgrs
+  Building wheel for mgrs (pyproject.toml) ... error
+  error: subprocess-exited-with-error
+
+  × Building wheel for mgrs (pyproject.toml) did not run successfully.
+  │ exit code: 1
+  ╰─> [28 lines of output]
+      running bdist_wheel
+      running build
+      running build_py
+      creating build\lib.win-amd64-cpython-313\mgrs
+      copying mgrs\core.py -> build\lib.win-amd64-cpython-313\mgrs
+      copying mgrs\__init__.py -> build\lib.win-amd64-cpython-313\mgrs
+      running egg_info
+      writing mgrs.egg-info\PKG-INFO
+      writing dependency_links to mgrs.egg-info\dependency_links.txt
+      writing top-level names to mgrs.egg-info\top_level.txt
+      reading manifest file 'mgrs.egg-info\SOURCES.txt'
+      reading manifest template 'MANIFEST.in'
+      adding license file 'LICENSE'
+      writing manifest file 'mgrs.egg-info\SOURCES.txt'
+      creating build\lib.win-amd64-cpython-313\libmgrs
+      copying libmgrs\mgrs.c -> build\lib.win-amd64-cpython-313\libmgrs
+      copying libmgrs\mgrs.h -> build\lib.win-amd64-cpython-313\libmgrs
+      copying libmgrs\polarst.c -> build\lib.win-amd64-cpython-313\libmgrs
+      copying libmgrs\polarst.h -> build\lib.win-amd64-cpython-313\libmgrs
+      copying libmgrs\tranmerc.c -> build\lib.win-amd64-cpython-313\libmgrs
+      copying libmgrs\tranmerc.h -> build\lib.win-amd64-cpython-313\libmgrs
+      copying libmgrs\ups.c -> build\lib.win-amd64-cpython-313\libmgrs
+      copying libmgrs\ups.h -> build\lib.win-amd64-cpython-313\libmgrs
+      copying libmgrs\utm.c -> build\lib.win-amd64-cpython-313\libmgrs
+      copying libmgrs\utm.h -> build\lib.win-amd64-cpython-313\libmgrs
+      running build_ext
+      building 'libmgrs' extension
+      error: Microsoft Visual C++ 14.0 or greater is required. Get it with "Microsoft C++ Build Tools": https://visualstudio.microsoft.com/visual-cpp-build-tools/
+      [end of output]
+
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+  ERROR: Failed building wheel for mgrs
+Failed to build mgrs
