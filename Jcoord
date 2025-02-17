@@ -1,0 +1,26 @@
+import uk.me.jstott.jcoord.MGRSRef;
+import uk.me.jstott.jcoord.LatLng;
+
+import java.util.Scanner;
+
+public class MGRSConverter {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter MGRS coordinate: ");
+        String mgrsInput = scanner.nextLine().replace(" ", ""); // Remove spaces
+
+        try {
+            // Convert MGRS to Latitude/Longitude
+            MGRSRef mgrsRef = new MGRSRef(mgrsInput);
+            LatLng latLng = mgrsRef.toLatLng();
+
+            System.out.println("Latitude: " + latLng.getLat());
+            System.out.println("Longitude: " + latLng.getLon());
+        } catch (Exception e) {
+            System.out.println("Invalid MGRS format: " + e.getMessage());
+        }
+
+        scanner.close();
+    }
+}
