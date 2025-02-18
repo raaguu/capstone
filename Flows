@@ -14,3 +14,12 @@
     <http:listener config-ref="HTTP_Listener_config" path="/users/{id}" method="GET"/>
     <set-payload value="#[{ 'message': 'Fetching user details', 'id': attributes.uriParams.id }]" />
 </flow>
+
+    <transform>
+        <dataweave><![CDATA[
+        %dw 2.0
+        output application/json
+        ---
+        read(vars.scriptOutput, "application/json")
+        ]]></dataweave>
+    </transform>
