@@ -1,0 +1,16 @@
+<http:listener-config name="HTTP_Listener_config" host="0.0.0.0" port="8081" basePath="/api" />
+
+<flow name="getUsersFlow">
+    <http:listener config-ref="HTTP_Listener_config" path="/users" method="GET"/>
+    <set-payload value="#[{ 'message': 'Fetching users' }]" />
+</flow>
+
+<flow name="createUserFlow">
+    <http:listener config-ref="HTTP_Listener_config" path="/users" method="POST"/>
+    <set-payload value="#[{ 'message': 'User created' }]" />
+</flow>
+
+<flow name="getUserDetailsFlow">
+    <http:listener config-ref="HTTP_Listener_config" path="/users/{id}" method="GET"/>
+    <set-payload value="#[{ 'message': 'Fetching user details', 'id': attributes.uriParams.id }]" />
+</flow>
