@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="
+      http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+      http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+    <!-- HTTP Listener Configuration -->
+    <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config">
+        <http:listener-connection host="0.0.0.0" port="8081"/>
+    </http:listener-config>
+
+    <!-- HTTP Request Configuration -->
+    <http:request-config name="HTTP_Request_config" doc:name="HTTP Request config">
+        <http:request-connection host="api.bigdatacloud.net" port="443" protocol="HTTPS"/>
+    </http:request-config>
+
+    <!-- Flow Definition -->
+    <flow name="reverseGeocodeFlow">
+        <!-- HTTP Listener to receive coordinates -->
+        <http:listener config-ref="HTTP_Listener_config" path="/reverse-geocode" doc:name="HTTP Listener"/>
+
+        <!-- HTTP Request to call the BigDataCloud API -->
+        <http:request method="GET" config-ref="HTTP_Request_config" path="/data/reverse-geocode-client" doc:name="Call BigDataCloud API">
+            <http:request-builder>
+                <http:query-param paramName="latitude" value="#[attributes.queryParams.latitude]"/>
+                <http:query-param paramName="longitude" value="#[attributes.queryParams.longitude]"/>
+                <http:query-param paramName="localityLanguage" value="en"/>
+            </http:request-builder>
+        </http:request>
+
+        <!-- Transform Message to extract required fields -->
+        <ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    country: payload.countryName,
+    city: payload.city,
+    postalCode: payload.postcode
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <!-- HTTP Response to return the result -->
+        <http:response statusCode="200" doc:name="HTTP Response"/>
+    </flow>
+</mule>
