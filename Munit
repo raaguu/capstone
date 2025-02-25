@@ -1,0 +1,20 @@
+<munit:test name="myTest">
+    <munit:set-event>
+        <munit:payload value="#[{} ]" />  <munit:variables>
+            <munit:variable key="lat" value="40.6891" />
+            <munit:variable key="lon" value="-71.0445" />
+        </munit:variables>
+        <munit:message>
+            <munit:inbound-properties>
+                <munit:inbound-property key="http.query.params" value="#[%dw 2.0
+                    output application/java
+                    ---
+                    {
+                        lat: vars.lat as String,  // Explicitly convert to String
+                        lon: vars.lon as String   // Explicitly convert to String
+                    }
+                ]" />
+            </munit:inbound-properties>
+        </munit:message>
+    </munit:set-event>
+    </munit:test>
