@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+
+    <http:listener-config name="HTTP_Listener_Config" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    
+    <flow name="xml-to-json-flow">
+        <!-- Receive the XML payload -->
+        <http:listener doc:name="Listener" config-ref="HTTP_Listener_Config" path="/xmltojson"/>
+        
+        <!-- Transform the XML to JSON -->
+        <transform doc:name="Transform XML to JSON">
+            <dw:transform-message doc:name="Transform Message">
+                <dw:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload
+]]></dw:set-payload>
+            </dw:transform-message>
+        </transform>
+        
+        <!-- Return the JSON response -->
+        <logger level="INFO" doc:name="Log JSON Response" message="#[payload]"/>
+    </flow>
+</mule>
