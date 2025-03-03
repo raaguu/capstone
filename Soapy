@@ -1,0 +1,7 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:dtod="[DTOD NAMESPACE]">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <dtod:[OPERATION NAME]>
+         </dtod:[OPERATION NAME]>
+   </soapenv:Body>
+</soapenv:Envelope>
