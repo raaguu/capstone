@@ -1,0 +1,52 @@
+#%RAML 1.0
+title: Coordinate Conversion API
+version: v1
+baseUri: http://api.example.com/coordinates
+
+types:
+  LatLon:
+    type: object
+    properties:
+      latitude: number
+      longitude: number
+  MGRS:
+    type: object
+    properties:
+      mgrs: string
+
+/resource:
+  getlatlon:
+    get:
+      description: Convert an MGRS string to latitude and longitude.
+      queryParameters:
+        mval:
+          description: MGRS coordinate string
+          type: string
+          required: true
+      responses:
+        200:
+          body:
+            application/json:
+              type: LatLon
+        400:
+          description: Invalid MGRS input
+
+  getMGRS:
+    get:
+      description: Convert latitude and longitude to an MGRS string.
+      queryParameters:
+        lat:
+          description: Latitude value
+          type: number
+          required: true
+        lon:
+          description: Longitude value
+          type: number
+          required: true
+      responses:
+        200:
+          body:
+            application/json:
+              type: MGRS
+        400:
+          description: Invalid latitude/longitude input
