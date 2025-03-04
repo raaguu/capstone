@@ -1,0 +1,22 @@
+title Coordinate Conversion API Sequence Diagram
+
+participant Client
+participant API as Coordinate Conversion API
+participant MGRSModule as MGRS Converter Module
+participant LatLongModule as Lat/Long Converter Module
+
+== Convert MGRS to Lat/Long ==
+
+Client -> API: Request MGRS -> Lat/Long
+API -> API: Validate Input
+API -> MGRSModule: Convert MGRS to Lat/Long
+MGRSModule -> API: Return Lat/Long
+API -> Client: Response with Lat/Long
+
+== Convert Lat/Long to MGRS ==
+
+Client -> API: Request Lat/Long -> MGRS
+API -> API: Validate Input
+API -> LatLongModule: Convert Lat/Long to MGRS
+LatLongModule -> API: Return MGRS
+API -> Client: Response with MGRS
