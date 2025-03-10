@@ -1,0 +1,56 @@
+<flow name="CreateSAPSalesOrderFlow" doc:id="flow-1">
+    <!-- HTTP Listener to receive sales order details -->
+    <http:listener config-ref="HTTP_Listener_config" path="/createOrder" doc:name="HTTP Listener"/>
+    
+    <!-- Transform incoming JSON request to SAP BAPI request structure -->
+    <ee:transform doc:name="Transform to SAP Request">
+        <ee:message>
+            <ee:set-payload>
+                <![CDATA[
+                %dw 2.0
+                output application/java
+                ---
+                {
+                    SALESDOCUMENT: "",
+                    ORDER_HEADER_IN: {
+                        DOC_TYPE: payload.docType,
+                        SALES_ORG: payload.salesOrg,
+                        DISTR_CHAN: payload.distChannel,
+                        DIVISION: payload.division
+                    },
+                    ORDER_ITEMS_IN: payload.items map (item) -> {
+                        ITM_NUMBER: item.itemNumber,
+                        MATERIAL: item.material,
+                        TARGET_QTY: item.quantity
+                    }
+                }
+                ]]>
+            </ee:set-payload>
+        </ee:message>
+    </ee:transform>
+    
+    <!-- SAP Connector to create the sales order -->
+    <sap:sap-bapi config-ref="SAP_Config" doc:name="SAP Create Sales Order">
+        <sap:server-bapi functionName="BAPI_SALESORDER_CREATEFROMDAT2"/>
+    </sap:sap-bapi>
+
+    <!-- Transform SAP response for the HTTP output -->
+    <ee:transform doc:name="Transform SAP Response">
+        <ee:message>
+            <ee:set-payload>
+                <![CDATA[
+                %dw 2.0
+                output application/json
+                ---
+                {
+                    salesOrderNumber: payload.SALESDOCUMENT,
+                    messages: payload.RETURN map (msg) -> {
+                        type: msg.TYPE,
+                        message: msg.MESSAGE
+                    }
+                }
+                ]]>
+            </ee:set-payload>
+        </ee:message>
+    </ee:transform>
+</flow>
