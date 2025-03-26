@@ -1,0 +1,47 @@
+<flow name="postSalesOrderToSapHttpFlow" doc:id="d4e5f6a7-b8c9-4d5e-6f7g-8h9i0j1k2l3m" >
+    <http:listener doc:name="Listener" doc:id="23456789-0123-4567-8901-234567890123" config-ref="HTTP_Listener_config" path="/salesorders"/>
+    
+    <!-- Transform to SAP IDOC or RFC format if needed -->
+    <ee:transform doc:name="Transform to SAP Format">
+        <ee:message>
+            <ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+---
+{
+    soapenv:Envelope @(
+        xmlns:soapenv: "http://schemas.xmlsoap.org/soap/envelope/",
+        xmlns:urn: "urn:sap-com:document:sap:soap:functions:mc-style"
+    ): {
+        soapenv:Header: {},
+        soapenv:Body: {
+            urn:ZBAPI_SALESORDER_CREATE: {
+                OrderHeaderIn: {
+                    DocType: payload.orderType default "OR",
+                    SalesOrg: payload.salesOrg default "1000",
+                    DistrChan: payload.distChannel default "10",
+                    Division: payload.division default "00"
+                },
+                OrderItemsIn: payload.items map ((item, index) -> {
+                    Material: item.productCode,
+                    Plant: item.plant default "1000",
+                    TargetQty: item.quantity
+                })
+            }
+        }
+    }
+}]]></ee:set-payload>
+        </ee:message>
+    </ee:transform>
+    
+    <!-- Set SAP specific headers -->
+    <set-property doc:name="Set Content-Type" value="application/xml" propertyName="Content-Type"/>
+    <set-property doc:name="Set Authorization" value="Basic #[vars.sapAuthToken]" propertyName="Authorization"/>
+    
+    <!-- HTTP Request to SAP -->
+    <http:request method="POST" doc:name="Call SAP API" 
+                 doc:id="67890123-4567-8901-2345-678901234567" 
+                 config-ref="SAP_HTTP_Request_config" 
+                 path="/sap/bc/srt/rfc/sap/zbapi_salesorder_create/100/zbapi_salesorder_create/zbapi_salesorder_create"/>
+    
+    <!-- Error Handling and Success Response similar to the first example -->
+</flow>
