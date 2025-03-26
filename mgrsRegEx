@@ -12,3 +12,50 @@ types:
 
 
 ^(\d{1,2}[A-Za-z]{2})([A-Za-z]{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?$
+
+#%RAML 1.0
+title: Tamis Orders API
+version: v1
+baseUri: https://api.example.com
+
+/tamisOrders:
+  get:
+    description: Retrieve tamis orders within a specific date range.
+    queryParameters:
+      startDate:
+        description: The start date for filtering orders (format: YYYY-MM-DD).
+        type: string
+        required: true
+        pattern: "^\\d{4}-\\d{2}-\\d{2}$"  # Ensures YYYY-MM-DD format
+        example: "2025-01-01"
+      endDate:
+        description: The end date for filtering orders (format: YYYY-MM-DD).
+        type: string
+        required: true
+        pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+        example: "2025-01-31"
+    responses:
+      200:
+        description: Successful response with a list of orders.
+        body:
+          application/json:
+            type: array
+            items:
+              type: object
+              properties:
+                orderId:
+                  type: string
+                  example: "ORD12345"
+                orderDate:
+                  type: string
+                  example: "2025-01-15"
+                customerName:
+                  type: string
+                  example: "John Doe"
+                totalAmount:
+                  type: number
+                  example: 249.99
+      400:
+        description: Invalid date format or missing parameters.
+      500:
+        description: Internal server error.
