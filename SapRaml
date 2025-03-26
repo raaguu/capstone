@@ -1,0 +1,26 @@
+#%RAML 1.0
+title: Sales Order API
+version: v1
+baseUri: http://example.com/api
+
+/A_SalesOrder:
+  post:
+    description: Create a new Sales Order
+    body:
+      application/json:
+        example: !include sales_order_example.json
+        type: object
+    responses:
+      201:
+        description: Sales order created successfully
+        body:
+          application/json:
+            example:
+              message: "Sales order created successfully"
+              orderId: "123456"
+      400:
+        description: Bad request
+        body:
+          application/json:
+            example:
+              error: "Invalid request payload"
