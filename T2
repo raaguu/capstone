@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:json="http://www.mulesoft.org/schema/mule/json"
+      xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="
+      http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+      http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
+
+    <http:listener-config name="HTTP_Listener_config" basePath="/api" >
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+
+    <flow name="Convert_ISO_to_MSJSON">
+        <!-- HTTP Listener -->
+        <http:listener path="/convert" config-ref="HTTP_Listener_config" allowedMethods="POST"/>
+        
+        <!-- Transform Message: Extract timestamp and convert -->
+        <ee:transform doc:name="Transform JSON">
+            <ee:message>
+                <ee:set-payload>
+                    <![CDATA[
+                    %dw 2.0
+                    import * from dw::core::Dates
+                    output application/json
+                    var isoTimestamp = payload.timestamp
+                    var epochMillis = (dateTime(isoTimestamp) as Number) / 1000
+                    ---
+                    {
+                        ms_json_timestamp: "/Date(" ++ epochMillis as String ++ ")/"
+                    }
+                    ]]>
+                </ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+</mule>
