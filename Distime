@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="
+      http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+      http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+    <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config">
+        <http:listener-connection host="0.0.0.0" port="8081"/>
+    </http:listener-config>
+
+    <flow name="get-distance-time-flow">
+        <http:listener doc:name="Receive Request" config-ref="HTTP_Listener_config" path="/distance"/>
+        
+        <set-variables>
+            <set-variable variableName="origin" value="#[attributes.queryParams.origin]" doc:name="Origin"/>
+            <set-variable variableName="destination" value="#[attributes.queryParams.destination]" doc:name="Destination"/>
+        </set-variables>
+
+        <http:request method="GET" doc:name="Call DTOD API" url="https://api.example.com/distance">
+            <http:request-parameters><![CDATA[
+                {
+                  "origin": vars.origin,
+                  "destination": vars.destination
+                }
+            ]]></http:request-parameters>
+            <http:headers><![CDATA[
+                {
+                  "Authorization": "Bearer YOUR_API_KEY",
+                  "Accept": "application/json"
+                }
+            ]]></http:headers>
+        </http:request>
+
+        <ee:transform doc:name="Extract Distance and Time" >
+            <ee:message>
+                <ee:set-payload><![CDATA[
+                {
+                  "origin": vars.origin,
+                  "destination": vars.destination,
+                  "distance": payload.distance,
+                  "duration": payload.duration
+                }
+                ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+</mule>
