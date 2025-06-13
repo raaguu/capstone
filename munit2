@@ -1,0 +1,19 @@
+<munit:test name="test_array_processing" description="Test array processing">
+    <munit:execution>
+        <flow-ref name="yourFlowUnderTest"/>
+    </munit:execution>
+    <munit:validation>
+        <!-- Transform output to manageable format -->
+        <set-variable variableName="testResults" value="#[output application/json --- payload]"/>
+        
+        <!-- Assert array size first -->
+        <munit-tools:assert-that expression="#[sizeOf(vars.testResults)]" is="#[MunitTools::equalTo(3)]"/>
+        
+        <!-- Assert individual elements -->
+        <munit-tools:assert-that expression="#[vars.testResults[0]]" 
+            is="#[MunitTools::equalTo(readUrl('classpath://expected_result_0.json'))]"/>
+        
+        <munit-tools:assert-that expression="#[vars.testResults[1]]" 
+            is="#[MunitTools::equalTo(readUrl('classpath://expected_result_1.json'))]"/>
+    </munit:validation>
+</munit:test>
